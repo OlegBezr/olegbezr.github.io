@@ -1,0 +1,350 @@
+<script src="https://rawcdn.githack.com/oscarmorrison/md-page/master/md-page.js"></script>
+<noscript>
+<a href="../index.html">Main page</a>
+# Project 2
+
+## Description
+
+The main goal of Part 1 of this project was to calculate partial derivatives Dx and Dy of the cameraman image.
+
+There were several goals in Part 2:
+- produce a set of "sharp" images (with strong high frequency features)
+- produce a set of hybrid images which appear as different images based on the viewing distance (using low and high frequency features)
+- produce a set of images created by blending two images together
+
+The project had two big challenges:
+- devising algorithm for blending images together
+- finding and adjusting pairs of images that would work well for creating hybrid images and merged images
+
+## Part 1.1
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_1/cameraman_x_conv.png" width=auto height="300">
+    <span style="text-align: center;">D_x</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_1/cameraman_y_conv.png" width=auto height="300">
+    <span style="text-align: center;">D_y</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_1/cameraman_gradient.png" width=auto height="300">
+    <span style="text-align: center;">Gradient</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_1/cameraman_gradient_threshold.png" width=auto height="300">
+    <span style="text-align: center;">Gradient with threshold 75</span>
+  </div>
+</div>
+
+## Part 1.2
+
+In part 1.1 the edges detected by gradient are quite choppy. So in this part I apply a gaussian blur to the image to smooth out the edges.
+I used 5x5 gaussian blur kernel with sigma = 1.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/cameraman_blur.png" width=auto height="300">
+    <span style="text-align: center;">Blurred with gaussian</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/cameraman_blur_x_conv.png" width=auto height="300">
+    <span style="text-align: center;">D_x</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/cameraman_blur_y_conv.png" width=auto height="300">
+    <span style="text-align: center;">D_y</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/cameraman_blur_gradient_threshold.png" width=auto height="300">
+    <span style="text-align: center;">Gradient with threshold 25</span>
+  </div>
+</div>
+
+There's a clear difference between edges detected in original image and blurred image.
+Edges detected in blurred image are smoother and less choppy. They are also thicker, more clear and less noisy.
+
+To make operations for smooth edge detection simpler and more efficient, I derived filters that blur and detect edges in one convolution operation.
+Using these filters resulted in the same images as illustrated above.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/filters/gaus_filter.png" width=auto height="300">
+    <span style="text-align: center;">Gaussian filter</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/filters/gaus_dx_filter.png" width=auto height="300">
+    <span style="text-align: center;">Gaussian D_x filter</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/filters/gaus_dy_filter.png" width=auto height="300">
+    <span style="text-align: center;">Gaussian D_y filter</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part1_2/filters/gaus_gradient_filter.png" width=auto height="300">
+    <span style="text-align: center;">Gaussian gradient filter</span>
+  </div>
+</div>
+
+## Part 2.1
+For low frequency subtraction I used 8x8 gaussian blur kernel with sigma = 1.
+To perform low frequency in one convolution operation, I used matrix which resulted from summing the following matrix:
+- 8x8 matrix with 1 + sharpen_coefficient in the center
+- 8x8 gaussian blur kernel with sigma = 1 multiplied by negative sharpen_coefficient
+
+This matrix combines operations of calculating the high frequencies of the image and adding it to the original image.
+So the resulting matrix we get = original_image + (original_image - low_frequency_image) * sharpen_coefficient.
+
+I used sharpen_coefficient = 5.
+
+Results of applying this operation are shown below.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/taj.png" width=auto height="300">
+    <span style="text-align: center;">Taj original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/taj_sharp.png" width=auto height="300">
+    <span style="text-align: center;">Taj sharp</span>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/peter.png" width=auto height="300">
+    <span style="text-align: center;">Peter original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/peter_sharp.png" width=auto height="300">
+    <span style="text-align: center;">Peter sharp</span>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/cat.png" width=auto height="300">
+    <span style="text-align: center;">Cat original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/cat_sharp.png" width=auto height="300">
+    <span style="text-align: center;">Cat sharp</span>
+  </div>
+</div>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/liberty.png" width=auto height="300">
+    <span style="text-align: center;">Statue of Liberty original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/liberty_sharp.png" width=auto height="300">
+    <span style="text-align: center;">Statue of Liberty sharp</span>
+  </div>
+</div>
+
+<br>
+
+Sharping blurred image:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/prosto.png" width=auto height="300">
+    <span style="text-align: center;">Prostokvashino original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/prosto_blur.png" width=auto height="300">
+    <span style="text-align: center;">Prostokvashino blurred</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_1/prosto_blur_sharp.png" width=auto height="300">
+    <span style="text-align: center;">Prostokvashino blurred and then sharp</span>
+  </div>
+</div>
+
+The sharpened image appears even sharper than the original one.
+We can see that some small details in textures might be missed since sharp image has more thick edges.
+While in blurred image small details such as eyes are noisy and not very clear, sharp image makes them as clear as in the original image.
+
+
+## Part 2.2
+In this part I used 20x20 gaussian blur kernel with sigma = 6.
+I also used 0.6 as weight for low frequency image and 0.4 as weight for high frequency image.
+
+Cat and tiger attempt failed since images were very close in style and it was hard to distinguish between them from different distances.
+
+Grayscale results:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/man_cat_hybrid_grayscale.jpg" width=auto height="300">
+    <span style="text-align: center;">Man from far, cat from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/trump_hybrid_grayscale.jpg" width=auto height="300">
+    <span style="text-align: center;">Happy from far, serious from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/cars_hybrid_grayscale.jpg" width=auto height="300">
+    <span style="text-align: center;">Zhiguli from far, porshe from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/oleg_hybrid_grayscale.jpg" width=auto height="300">
+    <span style="text-align: center;">Happy from far, angry from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/cat_tiger_hybrid_grayscale.jpg" width=auto height="300">
+    <span style="text-align: center;">FAILED attempt (cat and tiger)</span>
+  </div>
+</div>
+
+<br>
+
+COOKIE: Color results (from my tests keeping colors of both images worked the best):
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/man_cat_hybrid_colors.jpg" width=auto height="300">
+    <span style="text-align: center;">Man from far, cat from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/trump_hybrid_colors.jpg" width=auto height="300">
+    <span style="text-align: center;">Happy from far, serious from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/cars_hybrid_colors.jpg" width=auto height="300">
+    <span style="text-align: center;">Zhiguli from far, porshe from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/oleg_hybrid_colors.jpg" width=auto height="300">
+    <span style="text-align: center;">Happy from far, angry from close</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/cat_tiger_hybrid_colors.jpg" width=auto height="300">
+    <span style="text-align: center;">FAILED attempt (cat and tiger)</span>
+  </div>
+</div>
+
+Fourier analysis of my favorite pair (zhiguli and porshe):
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/zhiguli_fourier.jpg" width=auto height="300">
+    <span style="text-align: center;">Zhiguli fourier</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/zhiguli_low_freq_fourier.jpg" width=auto height="300">
+    <span style="text-align: center;">Zhiguli low frequencies fourier</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/porshe_fourier.jpg" width=auto height="300">
+    <span style="text-align: center;">Porshe fourier</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/porshe_high_freq_fourier.jpg" width=auto height="300">
+    <span style="text-align: center;">Porshe high frequencies fourier</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_2/cars_fourier.jpg" width=auto height="300">
+    <span style="text-align: center;">Final result fourier</span>
+  </div>
+</div>
+
+## Part 2.3 and 2.4
+
+For image blending I used 10x10 gaussian blur kernel with sigma = 3.
+To smoothly transition between images I calculated mask values for pixels within 1/16 of the image size from the split line using the following formula:
+- mask[i] = 1 - (i - (mid - block_size)) / (block_size * 2)
+- elements to one side of the split line are 1, to another side are 0 (depending on right or left image)
+
+I used 5 levels of gaussian blur to blend images together.
+
+All results are colored (COOKIE).
+
+Appange result:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_lapl1.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_lapl2.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 2</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_lapl3.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_lapl4.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 4</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_final_gaus.png" width=auto height="300">
+    <span style="text-align: center;">Last Gaussian level</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/appange_final.png" width=auto height="300">
+    <span style="text-align: center;">Final result</span>
+  </div>
+</div>
+
+<br>
+
+Triden result:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/triden_lapl1.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/triden_lapl2.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 2</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;"> 
+    <img src="part2_3/triden_lapl3.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/triden_lapl4.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 4</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/triden_final_gaus.png" width=auto height="300">
+    <span style="text-align: center;">Last Gaussian level</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/triden_final.png" width=auto height="300">
+    <span style="text-align: center;">Final result</span>
+  </div>
+</div>
+
+<br>
+
+Porshgli result (irregular mask):
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_lapl1.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_lapl2.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 2</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_lapl3.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_lapl4.png" width=auto height="300">
+    <span style="text-align: center;">Laplacian level 4</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_final_gaus.png" width=auto height="300">
+    <span style="text-align: center;">Last Gaussian level</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="part2_3/porshgli_final.png" width=auto height="300">
+    <span style="text-align: center;">Final result</span>
+  </div>
+</div>
+
+</noscript>
