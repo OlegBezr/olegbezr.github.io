@@ -1,0 +1,238 @@
+<script src="https://rawcdn.githack.com/oscarmorrison/md-page/master/md-page.js"></script>
+<noscript>
+<a href="../index.html">Main page</a>
+# Project 3
+
+## Description
+
+The main goal of this project was performing different operations on aligned images of faces with the help of lists of corresponding points, depicting main features of the face.
+Some of the coolest tasks were:
+- creating a gif of personal face morphing into another face
+- changing personal race & appearance with the help of average faces
+
+Throughout the project I used the following tool for marking corresponding points:
+https://cal-cs180.github.io/fa23/hw/proj3/tool.html
+
+I also used three photos of me (here are they in original form):
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg2.jpg" width=auto height="300">
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg_like.jpg" width=auto height="300">
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg_3.jpg" width=auto height="300">
+  </div>
+</div>
+
+
+
+## Part 1
+
+Here's how I marked corresponding points on me and clooney (zoom to see white squares better).
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part1/Screenshot 2024-10-07 at 13.36.20.png" width=auto height="300">
+  </div>
+</div>
+
+Then as recommended I performed triangulation with the help of `scipy.spatial.Delaunay` on the average points.
+
+Here's the triangles rendered over me and clooney:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part2/img_A_tr.jpg" width=auto height="300">
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part2/img_B_tr.jpg" width=auto height="300">
+  </div>
+</div>
+
+## Part 2
+
+To get midway face of me and clooney, I followed lecture slides (lecture "Image Warping and Morphing") closely and warped images to the midway form by warping each corresponding triangle.
+When calculating new pixel values, I used Bilinear Interpolation as it was shown in the lecture.
+
+Original images:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg2.jpg" width=auto height="300">
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="clooney/george_small.jpg" width=auto height="300">
+  </div>
+</div>
+
+Here's the midway face and also midway face with triangles:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part2/midway_face.jpg" width=auto height="300">
+    <span style="text-align: center;">Midway face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part2/midway_face_tr.jpg" width=auto height="300">
+    <span style="text-align: center;">Midway face with triangles</span>
+  </div>
+</div>
+
+## Part 3
+
+To do the morphing operation, I modified my midway_face function to support dissolve_frac parameter (0.5 by default), so the resulting face is formed as 
+imgA_warped_to_midway_form * dissolve_frac + imgB_warped_to_midway_form * (1 - dissolve_frac)
+
+Inside morph function I calculated current facial form based on warp_frac parameter:
+imgA_pts * warp_frac + imgB_pts * (1 - warp_frac)
+
+This would allow me to call morph function with different warp_frac and dissolve_frac parameters to get morphing steps.
+
+Here's some examples of morphing steps:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part3/morph_7.jpg" width=auto height="300">
+    <span style="text-align: center;">Morphing step 7/45</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part3/morph_12.jpg" width=auto height="300">
+    <span style="text-align: center;">Morphing step 12/45</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part3/morph_20.jpg" width=auto height="300">
+    <span style="text-align: center;">Morphing step 20/45</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part3/morph_29.jpg" width=auto height="300">
+    <span style="text-align: center;">Morphing step 29/45</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;"> 
+    <img src="results/part3/morph_40.jpg" width=auto height="300">
+    <span style="text-align: center;">Morphing step 40/45</span>
+  </div>
+</div>
+
+I got the following gif of morphing from 45 steps with 30 fps:
+
+<img src="results/part3/morph.gif" width=auto height="300">
+
+However I didn't like the gif produced with suggested parameters as it doesn't show initial and final face clearly and also doesn't loop!
+
+So I created a more beautiful gif with looping effect and longer pause on the first and last frame:
+
+<img src="results/part3/morph_loop_best.gif" width=auto height="300">
+
+## Part 4
+
+For part 4 I used FEI Face Database, specifically frontal images spatially normalized pack.
+https://fei.edu.br/~cet/facedatabase.html
+
+I computed average face separately for still and smiling images.
+And also separately for still/smiling and male/female images.
+
+I had to label images male/female as it was not obvious from the dataset. I got 100 male and 100 female images as expected.
+
+Some examples of morphing faces to computed average still face form:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/1a.jpg" width=auto height="300">
+    <span style="text-align: center;">1a original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/1a_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">1a morphing to average face</span>
+  </div>
+</div>
+
+<br>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/25a.jpg" width=auto height="300">
+    <span style="text-align: center;">25a original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/25a_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">25a morphing to average face</span>
+  </div>
+</div>
+
+<br>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/35a.jpg" width=auto height="300">
+    <span style="text-align: center;">35a original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/35a_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">35a morphing to average face</span>
+  </div>
+</div>
+
+<br>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/41a.jpg" width=auto height="300">
+    <span style="text-align: center;">41a original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/41a_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">41a morphing to average face</span>
+  </div>
+</div>
+
+<br>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/72a.jpg" width=auto height="300">
+    <span style="text-align: center;">72a original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/72a_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">72a morphing to average face</span>
+  </div>
+</div>
+
+<br>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_still_all.jpg" width=auto height="300">
+    <span style="text-align: center;">Average still face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_still_male.jpg" width=auto height="300">
+    <span style="text-align: center;">Average still face for male</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_still_female.jpg" width=auto height="300">
+    <span style="text-align: center;">Average still face for female</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_smile_all.jpg" width=auto height="300">
+    <span style="text-align: center;">Average smiling face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_smile_male.jpg" width=auto height="300">
+    <span style="text-align: center;">Average smiling face for male</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_face_smile_female.jpg" width=auto height="300">
+    <span style="text-align: center;">Average smiling face for female</span>
+  </div>
+</div>
+
+
+## Part 5
+
+## Cookies
+
+</noscript>
