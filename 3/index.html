@@ -15,7 +15,7 @@ https://cal-cs180.github.io/fa23/hw/proj3/tool.html
 
 I also used three photos of me (here are they in original form):
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="oleg/oleg2.jpg" width=auto height="300">
   </div>
@@ -33,7 +33,7 @@ I also used three photos of me (here are they in original form):
 
 Here's how I marked corresponding points on me and clooney (zoom to see white squares better).
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part1/Screenshot 2024-10-07 at 13.36.20.png" width=auto height="300">
   </div>
@@ -43,7 +43,7 @@ Then as recommended I performed triangulation with the help of `scipy.spatial.De
 
 Here's the triangles rendered over me and clooney:
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part2/img_A_tr.jpg" width=auto height="300">
   </div>
@@ -59,7 +59,7 @@ When calculating new pixel values, I used Bilinear Interpolation as it was shown
 
 Original images:
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="oleg/oleg2.jpg" width=auto height="300">
   </div>
@@ -70,7 +70,7 @@ Original images:
 
 Here's the midway face and also midway face with triangles:
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part2/midway_face.jpg" width=auto height="300">
     <span style="text-align: center;">Midway face</span>
@@ -93,7 +93,7 @@ This would allow me to call morph function with different warp_frac and dissolve
 
 Here's some examples of morphing steps:
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part3/morph_7.jpg" width=auto height="300">
     <span style="text-align: center;">Morphing step 7/45</span>
@@ -138,7 +138,7 @@ I had to label images male/female as it was not obvious from the dataset. I got 
 
 Some examples of morphing faces to computed average still face form:
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/1a.jpg" width=auto height="300">
     <span style="text-align: center;">1a original face</span>
@@ -151,7 +151,7 @@ Some examples of morphing faces to computed average still face form:
 
 <br>
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/25a.jpg" width=auto height="300">
     <span style="text-align: center;">25a original face</span>
@@ -164,7 +164,7 @@ Some examples of morphing faces to computed average still face form:
 
 <br>
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/35a.jpg" width=auto height="300">
     <span style="text-align: center;">35a original face</span>
@@ -177,7 +177,7 @@ Some examples of morphing faces to computed average still face form:
 
 <br>
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/41a.jpg" width=auto height="300">
     <span style="text-align: center;">41a original face</span>
@@ -190,7 +190,7 @@ Some examples of morphing faces to computed average still face form:
 
 <br>
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/72a.jpg" width=auto height="300">
     <span style="text-align: center;">72a original face</span>
@@ -203,7 +203,9 @@ Some examples of morphing faces to computed average still face form:
 
 <br>
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+Here are the average faces I computed:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
   <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="results/part4/avg_face_still_all.jpg" width=auto height="300">
     <span style="text-align: center;">Average still face</span>
@@ -230,9 +232,134 @@ Some examples of morphing faces to computed average still face form:
   </div>
 </div>
 
+I found it interesting how male and female average faces look different in hair form (female has hair on the sides, male doesn't).
+
+<br>
+
+Here's my original face, my face warped to average face as well as average face warped to my face:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg_like.jpg" width=auto height="300">
+    <span style="text-align: center;">My original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/oleg_warped_to_avg.jpg" width=auto height="300">
+    <span style="text-align: center;">My face warped to average face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part4/avg_warped_to_oleg.jpg" width=auto height="300">
+    <span style="text-align: center;">Average face warped to my face</span>
+  </div>
+</div>
+
+It's clear that my face has bigger tilt to the bottom in the photo than photos from FEI database.
+This is why average face warped to my face looks more tilted to the bottom.
+This is especially visible in the next part!
 
 ## Part 5
 
-## Cookies
+As I already mentioned, my face has bigger tilt to the bottom in the photo than photos from FEI database.
+So caricaturing my face really exaggerates this tilt and moves my face to the lower part of the image.
+
+Caricature effect facial pts are calculated as:
+avg_shape_pts + (points_oleg - avg_shape_pts) * alpha, alpha - weight of the caricature effect.
+
+Here's my original face, and my caricature face for different weight of the caricature effect:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="oleg/oleg_like.jpg" width=auto height="300">
+    <span style="text-align: center;">My original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_0.1.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=0.1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_0.3.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=0.3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_0.7.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=0.7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_0.9.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=0.9</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_1.3.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=1.3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_1.5.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=1.5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/part5/caricature_oleg_2.0.jpg" width=auto height="300">
+    <span style="text-align: center;">Caricature face for alpha=2.0</span>
+  </div>
+</div>
+
+
+## Bells and Whistles (COOKIES)
+
+For the bells and whistles I did the task of changing my ethnicity and gender.
+
+I used average face of korean male and average face of chinese female from the following website:
+https://pmsol3.wordpress.com/2009/10/10/world-of-facial-averages-east-southeast-asia-pacific-islander/
+
+After marking corresponding points I morphed and warped my face to the average facial forms of korean male and chinese female.
+I also warped their faces to my facial form.
+
+Original images:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="cookies/oleg_3.JPG" width=auto height="300">
+    <span style="text-align: center;">My original face</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;"> 
+    <img src="cookies/chineseaveragewoman.jpg" width=auto height="300">
+    <span style="text-align: center;">Avg face of chinese female</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="cookies/koreanaverageman.jpg" width=auto height="300">
+    <span style="text-align: center;">Avg face of korean male</span>
+  </div>
+</div>
+
+Here are the results:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"> 
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/oleg_morph_to_chinese.jpg" width=auto height="300">
+    <span style="text-align: center;">My face morphed to avg of chinese female</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/oleg_morph_to_korean.jpg" width=auto height="300">
+    <span style="text-align: center;">My face morphed to avg of korean male</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/oleg_warped_to_chinese.jpg" width=auto height="300">
+    <span style="text-align: center;">My face warped to avg of chinese female</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/oleg_warped_to_korean.jpg" width=auto height="300">
+    <span style="text-align: center;">My face warped to avg of korean male</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/chinese_warped_to_oleg.jpg" width=auto height="300">
+    <span style="text-align: center;">Avg face of chinese female warped to my</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/cookies/korean_warped_to_oleg.jpg" width=auto height="300">
+    <span style="text-align: center;">Avg face of korean male warped to my</span>
+  </div>
+</div>
+
+I think the results turned out better than I expected. And super fun! 
+I also really liked how the difference in eye form and face width is clearly visible on the warped images.
 
 </noscript>
