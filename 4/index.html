@@ -1,0 +1,184 @@
+<script src="https://rawcdn.githack.com/oscarmorrison/md-page/master/md-page.js"></script>
+<noscript>
+<a href="../index.html">Main page</a>
+# Project 4A
+
+## Description
+
+The main goal of this project was creating a photo mosaic from several images made from the same location but with different angle of view.
+
+## Step 1: Shoot and digitize pictures
+
+For this project I took all photos with my iPhone 14 Pro Max and than compressed their resolution to 756x1008.
+Here are some pictures I took for mosaic creation:
+
+1. View from Study Hall Rooftop Lounge
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="rooftop/IMG_1711.jpg" height="300">
+  <img src="rooftop/IMG_1712.jpg" height="300">
+</div>
+
+2. University way photos
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="street/IMG_1709.jpg" height="300">
+  <img src="street/IMG_1710.jpg" height="300">
+</div>
+
+3. Night photos of The Campanile and other surroundings from the top of Campbell Hall
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="astro/IMG_1725.jpg" height="300">
+  <img src="astro/IMG_1726.jpg" height="300">
+</div>
+
+## Step 2: Recover homographies
+
+To recover homographies, I first marked correspondence points on image pairs with the help of https://cal-cs180.github.io/fa23/hw/proj3/tool.html
+
+```
+[wx']   [h11 h12 h13]   [x]
+[wy'] = [h21 h22 h23] * [y]
+[w]     [h31 h32 h33]   [1]
+```
+Based on the homography matrix operation above, for every pair of corresponding points I created two linear equations in the form:
+```
+h11 * x + h12 * y + h13 - (h31 * x + h32 * y + h33) * x' = 0
+h21 * x + h22 * y + h23 - (h31 * x + h32 * y + h33) * y' = 0
+```
+
+I then used `numpy.linalg.svd` to solve the group of linear equations and picked the best solution based on smallest singular value.
+
+## Step 3: Warp the images
+
+To warp an image with the homography matrix, I first warped the corners of the image to get the warped image size.
+I then warped every pixel of the original image one by one, changing all neighboring pixels in the projection image in case the warped pixel had float coordinates.
+
+Here are some examples of warped images for pictures from Study Hall Rooftop Lounge:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rooftop/IMG_1711.jpg" height="300">
+    <span>First image original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/warped_B.jpg" height="300">
+    <span>Second warped to first</span>
+  </div>
+</div>
+<br>
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/warped_A.jpg" height="300">
+    <span>First warped to second</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rooftop/IMG_1712.jpg" height="300">
+    <span>Second image original</span>
+  </div>
+</div>
+
+<br>
+
+Example of Campanile warped to the first night image:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="astro/IMG_1725.jpg" height="300">
+    <span>First image original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/warped_astro.jpg" height="300">
+    <span>Campanile warped to first image</span>
+  </div>
+</div>
+
+## Step 3.5: Image Rectification
+
+To rectify images, I followed followed project instructions for correspondence points.
+I then used calculated homography and used image warping logic to warp the image into a rectangle.
+
+Here are some examples of rectified images:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rect/IMG_1830.JPG" height="300">
+    <span>Project 4 instructions on my monitor in safari browser</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/rect/rectified_img.jpg" height="300">
+    <span>Rectified instructions to wrong aspect ratio</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/rect/rectified_img_better.jpg" height="300">
+    <span>Rectified instructions to correct aspect ratio (somewhat readable)</span>
+  </div>
+</div>
+<br>
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rect/kasa.jpg" height="300">
+    <span>Properties company sign outside</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/rect/rectified_kasa.jpg" height="300">
+    <span>Rectified company sign</span>
+  </div>
+</div>
+<br>
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rect/window.jpg" height="300">
+    <span>Beautiful mosaic window of a neighoring house</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/rect/rectified_window.jpg" height="300">
+    <span>Rectified window (top half)</span>
+  </div>
+</div>
+
+## Step 4: Blend images into a mosaic
+
+All of my images were taken with slight rotation left/right. 
+To combine images into a mosaic, I accounted for the changed height of the warped image. 
+
+When blending images in case where pixels overlap, I used a weighted average to blend the images together.
+Weight for blending was based on horizontal distance to center of the combined images.
+
+Here are pairs of images and their mosaics:
+
+1. View from Study Hall Rooftop Lounge
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="rooftop/IMG_1711.jpg" height="300">
+  <img src="rooftop/IMG_1712.jpg" height="300">
+  <img src="results/mosaic_rooftop.jpg" width="400">
+</div>
+
+2. University way photos. This one has the most defects in the background as the distance to the road was way closer than background trees and images.
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="street/IMG_1709.jpg" height="300">
+  <img src="street/IMG_1710.jpg" height="300">
+  <img src="results/mosaic_street.jpg" width="400">
+</div>
+
+3. Night photos of The Campanile and other surroundings from the top of Campbell Hall. This is my personal favorite, I took these photos while watching stars for astronomy class.
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="astro/IMG_1725.jpg" height="300">
+  <img src="astro/IMG_1726.jpg" height="300">
+  <img src="results/mosaic_astro.jpg" width="400">
+</div>
+
+## Extra stuff
+
+Here are some mistakes I made on my first attempts of homography calculation and image warping.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/mistakes/first_homography_proj.png" height="300">
+    <span>Wrong signs in linear equations.</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/mistakes/homography_wrong_proj.png" height="300">
+    <span>Didn't account for pixels warping to float coordinates (just rounded them).</span>
+  </div>
+</div>
+
+
+</noscript>
