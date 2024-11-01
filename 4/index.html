@@ -323,4 +323,17 @@ It was still fun to try though.
   <img src="results/mistakes/auto_mosaic_street.jpg" height="300">
 </div>
 
+
+## What I learned
+
+I was surprised to see how automatic mosaics turned out same or even better than manual ones.
+I think that manual selection of points leads to errors in coordinates that might be more significant than errors in automatic feature matching.
+
+It was also interesting to see how RANSAC helped a lot to get rid of outliers in matches.
+It's fascinating to me how this random process of picking points and computing homography worked so well.
+
+Finally it was fun to be reminded how small errors in individual homography computations accumulate for matrices multiplication
+and how this leads to pretty bad results when trying to warp more than two images together.
+Of course this was a naive approach and there are more sophisticated ways to do this.
+
 </noscript>
