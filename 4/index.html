@@ -241,6 +241,12 @@ Here are the matches I got:
 
 ## Step 4: Use a robust method (RANSAC) to compute a homography
 
+I implemented RANSAC as suggested in lecture.
+I would repeatedly pick 4 random points from the matches, compute homography based on them,
+then check how many point pairs fit this homography with some allowed error.
+
+Finally I would select matches depicted by the homography with the most inliers.
+
 Here are the matches I got:
 
 <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
