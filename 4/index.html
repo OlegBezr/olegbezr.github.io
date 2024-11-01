@@ -181,4 +181,140 @@ Here are some mistakes I made on my first attempts of homography calculation and
 </div>
 
 
+# Project 4B
+
+## Description
+
+The main goal of this project was creating a photo mosaic from several images made from the same location but with different angle of view.
+Different from the 4A, manual image correspondence is not allowed.
+To generate homographies, corresponding points on the images must be selected automatically.
+
+Here are the images I will use for different step illustrations:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="astro/IMG_1725.jpg" height="300">
+  <img src="astro/IMG_1726.jpg" height="300">
+</div>
+
+## Step 1: Detecting corner features in an image
+
+For this step I just used the provided implementation of Harris.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/4b/corners1.jpg" height="300">
+  <img src="results/4b/corners2.jpg" height="300">
+</div>
+
+## Step 1.5: Selecting best corners in images
+
+For this step I implemented anms as suggested in the paper.
+I used suggested param values: n_ip = 500, c_robust = 0.9
+
+Here are the corners I had left after anms:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/4b/corners1_anms.jpg" height="300">
+  <img src="results/4b/corners2_anms.jpg" height="300">
+</div>
+
+## Step 2: Extracting a Feature Descriptor for each feature point
+
+For this step as suggested in project instructions, for each left corner I extracted feature descriptor as 
+8x8 image block extracted from 40x40 image block centered at the corner coordinates.
+I also did normalization as suggested.
+
+## Step 3: Matching these feature descriptors between two images
+
+As suggested in lecture, to match points on two images, 
+for each corner of the first image I iterated over all corners of the second image 
+and calculated differences between corresponding feature descriptors.
+
+Then I would only produce a match if the best match between fixed corner of the first image was significantly better than 
+any other possible match (for other corner of the second image), as suggested in lecture.
+
+Here are the matches I got:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/4b/matches1.jpg" height="300">
+  <img src="results/4b/matches2.jpg" height="300">
+</div>
+
+## Step 4: Use a robust method (RANSAC) to compute a homography
+
+Here are the matches I got:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/4b/best_matches1.jpg" height="300">
+  <img src="results/4b/best_matches2.jpg" height="300">
+</div>
+
+## Step 5: Proceed as in the first part to produce a mosaic
+
+Same images as in manual mosaics:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rooftop/IMG_1711.jpg" height="300">
+    <span>First image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="rooftop/IMG_1712.jpg" height="300">
+    <span>Second image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/mosaic_rooftop.jpg" height="300">
+    <span>Manual mosaic</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/4b/auto_mosaic_rooftop.jpg" height="300">
+    <span>Automatic mosaic</span>
+  </div>
+</div>
+<br>
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="astro/IMG_1725.jpg" height="300">
+    <span>First image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="astro/IMG_1726.jpg" height="300">
+    <span>Second image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/mosaic_astro.jpg" height="300">
+    <span>Manual mosaic</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/4b/IMG_1725-IMG_1726.jpg" height="300">
+    <span>Automatic mosaic</span>
+  </div>
+</div>
+
+All automatic mosaics I got (more than manual since I didn't have to mark the points):
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/4b/IMG_1708-IMG_1709.jpg" height="300">
+  <img src="results/4b/IMG_1709-IMG_1710.jpg" height="300">
+  <img src="results/4b/IMG_1711-IMG_1712.jpg" height="300">
+  <img src="results/4b/IMG_1712-IMG_1713.jpg" height="300">
+  <img src="results/4b/IMG_1713-IMG_1714.jpg" height="300">
+  <img src="results/4b/IMG_1723-IMG_1724.jpg" height="300">
+  <img src="results/4b/IMG_1724-IMG_1725.jpg" height="300">
+  <img src="results/4b/IMG_1725-IMG_1726.jpg" height="300">
+</div>
+
+## Cookies
+
+I also tried generating mosaics out of more than two images.
+I tried naive idea of computing homographies between image pairs
+And then warping all images to the plane of the left most image
+
+But it seems like the small errors in homographies would lead to great errors when multiplying so I got pretty bad results.
+It was still fun to try though.
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"></div>
+  <img src="results/mistakes/auto_mosaic_rooftop.jpg" height="300">
+  <img src="results/mistakes/auto_mosaic_street.jpg" height="300">
+</div>
+
 </noscript>
