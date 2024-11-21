@@ -828,10 +828,162 @@ Cat and dog:
 </div>
 <br>
 
+
+## 1.9 Hybrid Images
+
+In this part I combined the denoising logic together with some logic from a previous <a href="../2/index.html">Project 2</a> to create hybrid images.
+The main idea is to take combine low frequencies and high frequencies of two image noises to get a hybrid noise estimate.
+The hybrid noise estimate can then be used in denoising process to get a hybrid image after some iterations.
+
+Below are examples of combinations of two prompts, first taken in low frequencies and second in high frequencies.
+
+"a lithograph of a skull" and "a lithograph of waterfalls":
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.9/skull_waterfall.png" height="300">
+</div>
+<br>
+
+"a watercolor of a dog" and "an oil painting of people around a campfire":
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.9/dog_campfire.png" height="300">
+</div>
+<br>
+
+"a watercolor of a soccer ball" and "a pair of people in black and white dancing":
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.9/ball_dancing.png" height="300">
+</div>
+<br>
+
+"a hedgehog" and "an oil painting of a forest":
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.9/hedgehog_forest.png" height="300">
+</div>
+<br>
+
+"a detailed sketch of a butterfly" and "a detailed sketch of a dancing lady":
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.9/butterfly_lady.png" height="300">
+</div>
+<br>
+
+This part has proven to be the most complicated due to difficulty of prompt engineering.
+It was very hard to come up with good prompts that would combine well together as low and high frequencies.
+I had to try more than 20 different combinations to get something that looks good.
+<br>
+<br>
+<br>
+
+
 # Project 5B
 
 ## Description
 
-The main goal of this project was...
+The main goal of this project was to implement variations of UNet from scratch with the help of PyTorch.
+MNIST dataset was used to train the models and test their quality.
+
+
+## Part 1: Training a Single-Step Denoising UNet
+
+First a simple denoising UNet was implemented.
+Architecture of the UNet is shown below:
+
+<img src="https://cal-cs180.github.io/fa24/hw/proj5/assets/unconditional_arch.png" height="300">
+
+Noising process for sigma values `[0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]`:
+
+<img src="results_B/noising_process.png" width="700">
+
+
+I trained the model to denoise MNIST images with 0.5 noise levels.
+L2 loss was used as a loss function.
+Training losses graph:
+
+<img src="results_B/denoising_unet_training.png" width="600">
+
+Predictions:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/denoising_epoch1_result.png" width="300">
+    <span>after 1 epoch</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/denoising_epoch5_result.png" width="300">
+    <span>after 5 epochs</span>
+  </div>
+</div>
+
+Denoiser results for different noise levels (sigma values `[0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]`):
+
+<img src="results_B/denoising_out_of_distr.png" width="700">
+
+The results are pretty good for all noise levels.
+However they tend to be worse for sigma values higher than 0.5.
+It's especially visible in case of digit 1 which becomes hard to recognize when denoised from higher noise levels.
+<br>
+<br>
+
+
+
+## Part 2: Training a Diffusion Model
+
+In this part I switched to making a UNet that would predict noise instead of denoising.
+The architecture was modified to condition the UNet on the noise level (or to be more precise, the time step `t` in a denoising process).
+
+Here is the updated architecture:
+
+<img src="https://cal-cs180.github.io/fa24/hw/proj5/assets/conditional_arch.png" width="700">
+
+I trained the model to predict noise for MNIST images with various noise levels (time step from 0 to 300).
+L2 loss was used as a loss function.
+Training losses graph:
+
+<img src="results_B/time_cond_training.png" width="600">
+
+Then the denoising algorithm from Project5A was modified to use trained UNet as noise predictor.
+Here are examples of sampling from pure noise with this modified algorithm:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/time_cond_epoch5_result.png" width="600">
+    <span>after 5 epochs</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/time_cond_epoch20_result.png" width="600">
+    <span>after 20 epochs</span>
+  </div>
+</div>
+
+After 5 epochs the results are still quite random. Produced samples are often hard to match with a specific class label.
+After 20 epochs the results are more recognizable but there are still cases when the output is not even close to a specific class label.
+<br>
+
+## 2.4 Adding Class-Conditioning to UNet
+In this part the previous architecture was modified to also condition the UNet on the class label.
+This way we will be able to sample from different classes with the help of denoising algoritm using modified UNet.
+
+I trained the model to predict noise for MNIST images with various noise levels (time step from 0 to 300) and class labels (0 to 9).
+L2 loss was used as a loss function.
+Training losses graph:
+
+<img src="results_B/class_cond_training.png" width="600">
+
+Then the classifier-free guidance denoising algorithm from Project5A was modified to use trained UNet with class conditioning.
+Here are some examples of sampling from pure noise with this modified algorithm (each column corresponds to a different class label):
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/class_cond_epoch5_result.png" width="600">
+    <span>after 5 epochs</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results_B/class_cond_epoch20_result.png" width="600">
+    <span>after 20 epochs</span>
+  </div>
+</div>
+
+After 5 epochs there's still a little bit of background noise (see gray color in the background).
+After 20 epochs the background noise is minimal.
 
 </noscript>
