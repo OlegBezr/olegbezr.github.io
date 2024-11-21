@@ -5,15 +5,782 @@
 
 ## Description
 
-The main goal of this project was...
+The main goal of this project was to play with DeepFloyd diffusion models and different algorithms for image generation from noise with prompts.
+This project also included some experiments with image combination and editing as well as some experiments with prompt engineering.
+
+## Part 0: Setup
+
+For the whole project I used `YOUR_SEED = 42`.
+
+Here are the initial results I got from the 2 stages of the DeepFloyd model with `num_inference_steps=20`:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_an oil painting of a snowy mountain village.png" height="300">
+    <span>an oil painting of a snowy mountain village</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a man wearing a hat.png" height="300">
+    <span>a man wearing a hat</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a rocket ship.png" height="300">
+    <span>a rocket ship</span>
+  </div>
+</div>
+<br>
+<br>
+
+Here are the results I got from experimenting with different `num_inference_steps` values:
+
+`5 steps`
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_an oil painting of a snowy mountain village_steps5.png" height="300">
+    <span>an oil painting of a snowy mountain village</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a man wearing a hat_steps5.png" height="300">
+    <span>a man wearing a hat</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a rocket ship_steps5.png" height="300">
+    <span>a rocket ship</span>
+  </div>
+</div>
+<br>
+
+`10 steps`
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_an oil painting of a snowy mountain village_steps10.png" height="300">
+    <span>an oil painting of a snowy mountain village</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a man wearing a hat_steps10.png" height="300">
+    <span>a man wearing a hat</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a rocket ship_steps10.png" height="300">
+    <span>a rocket ship</span>
+  </div>
+</div>
+<br>
+
+`30 steps`
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_an oil painting of a snowy mountain village_steps30.png" height="300">
+    <span>an oil painting of a snowy mountain village</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a man wearing a hat_steps30.png" height="300">
+    <span>a man wearing a hat</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a rocket ship_steps30.png" height="300">
+    <span>a rocket ship</span>
+  </div>
+</div>
+<br>
+
+`50 steps`
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_an oil painting of a snowy mountain village_steps50.png" height="300">
+    <span>an oil painting of a snowy mountain village</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a man wearing a hat_steps50.png" height="300">
+    <span>a man wearing a hat</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/0/stage_2_output_a rocket ship_steps50.png" height="300">
+    <span>a rocket ship</span>
+  </div>
+</div>
+<br>
+
+Overall, the more steps the more high quality/detailed the image is. It's clearly visible in case of mountain village which increases in details with more steps.
+And in case of a man wearing a hat the image becomes more and more realistic with more steps. But there's still a good amount of randomness in the generation process. 
+The rocket ship looks most realistic in 10 steps but then starts degrading into a simpler cartoonish image.
 
 
+## 1.1 Implementing the Forward Process
+
+For this part I implemented the forwarding process exactly as described by the formulas in the assignment.
+
+Here is how the Berkeley Campanile looks at different noise levels:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/campanile.jpg" height="300">
+    <span>original image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.1/im_noisy_steps250.png" height="300">
+    <span>noise level 250</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.1/im_noisy_steps500.png" height="300">
+    <span>noise level 500</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;"> 
+    <img src="results/1.1/im_noisy_steps750.png" height="300">
+    <span>noise level 750</span>
+  </div>
+</div>
+<br>
+
+## 1.2 Classical Denoising
+
+In this part I tried to denoise the noisy images with different gaussian blur filters. 
+I got the best results with `kernel_size=11` and `sigma=1.5`.
+
+Here are the results:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.2/im_denoised_steps250.png" height="300">
+    <span>denoised from noise level 250</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.2/im_denoised_steps500.png" height="300">
+    <span>denoised from noise level 500</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.2/im_denoised_steps750.png" height="300">
+    <span>denoised from noise level 750</span>
+  </div>
+</div>
+
+Applying a gaussian blur helped to recover some high frequency details but the images still look way less clean and sharp than the original.
+Clearly, simply applying a gaussian blur doesn't work very well for denoising.
+<br>
 
 
+## 1.3 One-Step Denoising
+
+In this part I implemented the one-step denoising algorithm. 
+I used the `stage_1.unet` for noise prediction. The prompt was `a high quality photo`.
+
+To denoise the image, I used the forward noising process formula to get formula for the original image based on the noisy one.
+
+Here are the results:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.3/clean_est_steps250.png" height="300">
+    <span>denoised from noise level 250</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.3/clean_est_steps500.png" height="300">
+    <span>denoised from noise level 500</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.3/clean_est_steps750.png" height="300">
+    <span>denoised from noise level 750</span>
+  </div>
+</div>
+<br>
 
 
+## 1.4 Iterative Denoising
+
+In the previous part the results were good but not perfect. The final images still had some noise and were not perfectly sharp.
+
+In this part I implemented the iterative denoising algorithm as described in the assignment.
+The algorithm is based on [DDPM paper](https://arxiv.org/pdf/2006.11239).
+
+The algorithm would iteratively apply denoising while gradually decreasing the noise level until the final image at noise level 0 is produced.
+
+Here are the results:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/campanile.jpg" height="300">
+    <span>original image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/iterative_denoise_660.png" height="300">
+    <span>noise level 660</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/iterative_denoise_510.png" height="300">
+    <span>noise level 510</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/iterative_denoise_360.png" height="300">
+    <span>noise level 360</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/iterative_denoise_210.png" height="300">
+    <span>noise level 210</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/iterative_denoise_60.png" height="300">
+    <span>noise level 60</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.4/clean.png" height="300">
+    <span>final image</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;"> 
+    <img src="results/1.4/clean_one_step.png" height="300">
+    <span>one-step denoising</span>
+  </div>
+</div>
+
+As we can see, the final image is much cleaner and sharper than the one produced by the one-step denoising algorithm for the same noise level.
+<br>
 
 
+## 1.5 Diffusion Model Sampling
+
+In this part I used the iterative denoising algorithm to create new images from noise.
+The prompt was `a high quality photo`.
+
+Here are the generated images:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.5/generated_0.png" height="300">
+    <span>sample 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.5/generated_1.png" height="300">
+    <span>sample 2</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.5/generated_2.png" height="300">
+    <span>sample 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.5/generated_3.png" height="300">
+    <span>sample 4</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.5/generated_4.png" height="300">
+    <span>sample 5</span>
+  </div>
+</div>
+
+Though some of the samples are confusing and low quality, overall the look good and close to real images.
+Sample 2 looks like a group of performers, sample 3 like a hot air balloon flying over a mountain at sunset, sample 4 like a painting of knights.
+<br>
+
+
+## 1.6 Classifier-Free Guidance (CFG)
+
+In this part I modified the iterative denoising algorithm to use classifier-free guidance.
+I closely followed the algorithm described in the assignment.
+
+The prompt was `a high quality photo`. I used `scale=7` for the guidance scale.
+
+Here are the generated images:
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.6/generated_0.png" height="300">
+    <span>sample 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.6/generated_1.png" height="300">
+    <span>sample 2</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.6/generated_2.png" height="300">
+    <span>sample 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.6/generated_3.png" height="300">
+    <span>sample 4</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.6/generated_4.png" height="300">
+    <span>sample 5</span>
+  </div>
+</div>
+
+Immediately we can see that the images are far more realistic and sharp, with lots of details. They are also generally more beautiful and colorful.
+4 out of 5 samples show people, 3 out of 5 images show some water like a lake or a sea.
+<br>
+
+
+## 1.7 Image-to-image Translation
+
+In this part I used the `iterative_denoise_cfg` function from the previous part
+to denoise different images from a set of noise levels.
+
+This would result in creation of new images or sometimes just slight modifications of the original images.
+
+Berkeley Campanile:
+<!-- index 1, 3, 5, 7, 10, 20 -->
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/campanile.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+President Trump:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/trump_smile.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/trump_smile_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+Fat cat:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/fat_cat.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/fat_cat_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+
+I found it fascinating how key aspects of the images were mostly preserved in generation.
+For campanile all the pictures depict a center tall figure pointing to the sky.
+For President Trump starting at index 5 images show a close up of a person smiling.
+For fat cat starting at index 5 images show the angle at which the cat is lying down.
+<br>
+
+
+## 1.7.1 Editing Hand-Drawn and Web Images
+
+In this part I repeated steps from part 1.7 to generate images based on unrealistic images and sketches.
+
+Troll face:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/troll_face.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/troll_face_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+Sketch of a cat:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/cat_drawing.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/cat_drawing_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+Sketch of a ship:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/ship_drawing.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/ship_drawing_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+Sketch of an elephant:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/elephant_drawing.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/elephant_drawing_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+I found the modified version of troll face super fun and creepy!
+
+My sketches mostly didn't work very well. 
+But it was interesting to see how the cat got colored. And super fun to see my elephant turn into a surreal animal in antarctica.
+For the ship sketch, the model failed to come up with anything close - maybe it didn't see much ships or my sketch was too bad.
+It's interesting how the ship turned into an elegant text saying "... quality".
+<br>
+
+
+## 1.7.2 Inpainting
+
+In this part I modified the iterative denoising algorithm to inpaint a part of the image.
+Basically I just masked out the part of the image I wanted to inpaint and then used the iterative denoising algorithm to fill it in.
+It was important to also produced noised image from the original image at every step so that the model tries to change the whole image.
+
+Modified campanile top:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/campanile.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_inpaint_mask.png" height="300">
+    <span>mask</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/campanile_inpaint_replace.png" height="300">
+    <span>to replace</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/inpainted_campanile.png" height="300">
+    <span>result</span>
+  </div>
+</div>
+<br>
+
+My face in a cafe replaced (funny how the head now is turned the other way):
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/me_no_face.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/me_no_face_inpaint_mask.png" height="300">
+    <span>mask</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/me_no_face_inpaint_replace.png" height="300">
+    <span>to replace</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/inpainted_me_no_face.png" height="300">
+    <span>result</span>
+  </div>
+</div>
+<br>
+
+Car removed from the front of a castle (got replaced with a tollgate to prevent cars from entering, lol):
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/castle_car.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/castle_car_inpaint_mask.png" height="300">
+    <span>mask</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/castle_car_inpaint_replace.png" height="300">
+    <span>to replace</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/inpainted_castle_car.png" height="300">
+    <span>result</span>
+  </div>
+</div>
+<br>
+
+
+## 1.7.3 Editing with Text Prompts
+
+This part is the same as was done in part 1.7 except the prompt is "a rocket ship".
+
+Campanile into a rocket ship:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/campanile.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_campanile_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+My girlfriend into a rocket ship:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/gf.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_gf_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+Campanile at night into a rocket ship (I love the night sky!):
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/night_campanile.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_night_campanile_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+My sketch of an elephant into a rocket ship:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="data/elephant_drawing.jpg" height="300">
+    <span>original</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_1.png" height="300">
+    <span>from noise level at index 1</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_3.png" height="300">
+    <span>from noise level at index 3</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_5.png" height="300">
+    <span>from noise level at index 5</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_7.png" height="300">
+    <span>from noise level at index 7</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_10.png" height="300">
+    <span>from noise level at index 10</span>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="results/1.7/to_rocket_elephant_drawing_20.png" height="300">
+    <span>from noise level at index 20</span>
+  </div>
+</div>
+<br>
+
+## 1.8 Visual Anagrams
+
+In this part I created visual anagrams of the images that look different when flipped vertically. 
+The results are super fun and fascinating!
+
+Old man and campfire:
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;">
+  <img src="results/1.8/oldman_campfire.png" height="300">
+  <!-- rotate  -->
+<br>
 
 # Project 5B
 
